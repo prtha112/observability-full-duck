@@ -33,3 +33,14 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install ingress-nginx . -n api-gateway --create-namespace
 ```
+
+# Install prometheus server
+```bash
+helm upgrade prometheus oci://ghcr.io/prometheus-community/charts/prometheus \
+    --namespace prometheus \
+    --set alertmanager.enabled=false \
+    --set prometheus-pushgateway.enabled=false \
+    --set prometheus-node-exporter.enabled=false \
+    --set kube-state-metrics.enabled=false \
+    --set "server.extraFlags[0]=web.enable-remote-write-receiver"
+```

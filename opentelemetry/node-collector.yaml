@@ -3,6 +3,7 @@ kind: OpenTelemetryCollector
 metadata:
   name: node-metrics
 spec:
+  image: otel/opentelemetry-collector-contrib:0.119.0
   mode: daemonset
   env:
     - name: K8S_NODE_NAME
@@ -30,15 +31,36 @@ spec:
             - targets: ['ingress-nginx-controller-metrics.ingress-nginx.svc:10254']
       kubeletstats:
         collection_interval: 20s
-        auth_type: "none"
-        endpoint: "http://${env:K8S_NODE_NAME}:10255"
+        auth_type: "serviceAccount"
+        endpoint: "https://${env:K8S_NODE_NAME}:10250"
+        insecure_skip_verify: true
     exporters:
-      debug:
-        verbosity: detailed
-        sampling_initial: 5
-        sampling_thereafter: 200
+      prometheusremotewrite:
+        endpoint: http://prometheus-server.prometheus.svc.cluster.local:80/api/v1/write
     service:
       pipelines:
         metrics:
           receivers: [prometheus, kubeletstats]
-          exporters: [debug]
+          exporters: [prometheusremotewrite]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector-kubelet-stats
+rules:
+  - apiGroups: [""]
+    resources: ["nodes/stats", "nodes/proxy"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector-kubelet-stats
+subjects:
+  - kind: ServiceAccount
+    name: node-metrics-collector
+    namespace: opentelemetry-operator-system
+roleRef:
+  kind: ClusterRole
+  name: otel-collector-kubelet-stats
+  apiGroup: rbac.authorization.k8s.io
