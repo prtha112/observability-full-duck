@@ -1,0 +1,81 @@
+ingress-nginx:
+  controller:
+    name: controller
+    enableAnnotationValidations: false
+    ingressClassResource:
+      name: "nginx"
+      enabled: true
+      default: false
+      annotations: {}
+      controllerValue: "k8s.io/nginx"
+      aliases: []
+      parameters: {}
+    ingressClass: "nginx"
+    
+    replicaCount: 2
+    minAvailable: 1
+    unhealthyPodEvictionPolicy: ""
+    
+    resources:
+      requests:
+        cpu: 100m
+        memory: 90Mi
+    
+    autoscaling:
+      enabled: false
+    autoscalingTemplate: []
+    
+    keda:
+      apiVersion: "keda.sh/v1alpha1"
+      enabled: false
+    enableMimalloc: true
+    customTemplate:
+      configMapName: ""
+      configMapKey: ""
+    service:
+      enabled: true
+      external:
+        enabled: true
+      annotations: {}
+      labels: {}
+      type: NodePort
+      clusterIP: ""
+      externalIPs: []
+      loadBalancerIP: ""
+      loadBalancerSourceRanges: []
+      loadBalancerClass: ""
+      externalTrafficPolicy: Cluster
+      sessionAffinity: ""
+      ipFamilyPolicy: SingleStack
+      ipFamilies:
+        - IPv4
+      enableHttp: true
+      enableHttps: true
+      ports:
+        http: 80
+        https: 443
+      targetPorts:
+        http: 80
+        https: 443
+      appProtocol: true
+      nodePorts:
+        http: "30080"
+        https: ""
+        tcp: {}
+        udp: {}
+      internal:
+        enabled: false
+    shareProcessNamespace: false
+    
+    admissionWebhooks:
+      name: admission
+      annotations: {}
+      enabled: false
+    
+    metrics:
+      port: 10254
+      portName: metrics
+      enabled: true
+    revisionHistoryLimit: 10
+    defaultBackend:
+      enabled: false

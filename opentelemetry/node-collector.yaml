@@ -1,0 +1,44 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: node-metrics
+spec:
+  mode: daemonset
+  env:
+    - name: K8S_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+  volumes:
+    - name: hostfs
+      hostPath:
+        path: / 
+        type: Directory
+  volumeMounts:
+    - name: hostfs
+      mountPath: /host
+      readOnly: true
+      mountPropagation: HostToContainer
+  config:
+    receivers:
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: ingress-nginx
+            metrics_path: /metrics
+            static_configs:
+            - targets: ['ingress-nginx-controller-metrics.ingress-nginx.svc:10254']
+      kubeletstats:
+        collection_interval: 20s
+        auth_type: "none"
+        endpoint: "http://${env:K8S_NODE_NAME}:10255"
+    exporters:
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+    service:
+      pipelines:
+        metrics:
+          receivers: [prometheus, kubeletstats]
+          exporters: [debug]
