@@ -28,7 +28,7 @@ spec:
           - job_name: ingress-nginx
             metrics_path: /metrics
             static_configs:
-            - targets: ['ingress-nginx-controller-metrics.ingress-nginx.svc:10254']
+            - targets: ['ingress-nginx-controller-metrics.api-gateway.svc:10254']
       kubeletstats:
         collection_interval: 20s
         auth_type: "serviceAccount"
