@@ -76,6 +76,13 @@ ingress-nginx:
       port: 10254
       portName: metrics
       enabled: true
+      service:
+        enabled: true
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "10254"
+      serviceMonitor:
+        enabled: false
     revisionHistoryLimit: 10
     defaultBackend:
       enabled: false
