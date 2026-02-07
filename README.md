@@ -44,3 +44,13 @@ helm upgrade prometheus oci://ghcr.io/prometheus-community/charts/prometheus \
     --set kube-state-metrics.enabled=false \
     --set "server.extraFlags[0]=web.enable-remote-write-receiver"
 ```
+
+# Install example-app
+```bash
+helm upgrade example-app ./example-app --namespace example-app
+```
+
+# Check example-app
+```bash
+curl http://$(minikube ip):30080/test
+```
